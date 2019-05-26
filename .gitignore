@@ -35,3 +35,8 @@
 .vscode/ipch/a9516ecb25ef740f/mmap_address.bin
 .vscode/ipch/b9c21847fcffe1f6/mmap_address.bin
 .vscode/ipch/b9c21847fcffe1f6/FUNKCIJOS.ipch
+*.bin
+3 uzduotis.code-workspace
+*.txt
+*.ipch
+.vscode/settings.json
