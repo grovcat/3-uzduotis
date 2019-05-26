@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef FUNK_H 
 #define FUNK_H
 
@@ -9,6 +11,7 @@
 #include <time.h>
 #include <fstream>
 #include <chrono>
+#include "StudentClass.h"
 
 using std::cout;
 using std::cin;
@@ -24,24 +27,20 @@ using std::vector;
 using std::string;
 using namespace std::chrono;
 
-struct Student
-{
-    string name;
-    string surname;
-    vector<int> hw;
-    int exam;
-    double vid, med;
-};
-
-bool compare(Student&, Student&);
+bool compare(const Student&, const Student&);
+bool comparePagalPavarde(const Student&, const Student&);
+bool comparePagalEgza(const Student&, const Student&);
+bool checkIfFileExists();
 bool checkIfInt(string);
+
 int generateRandom();
+
 double vidCalc(vector<int>, int, int);
 double medCalc(vector<int>, int, int);
+
 void addData(vector<Student>&, int, bool);
 void addDataFromFile(vector<Student>&, vector<Student>&, vector<Student>&, int&);
 void print(vector<Student>&, vector<Student>&, vector<Student>&, int, bool);
-bool checkIfFileExists();
-void generateFile();
+void generateFile(vector<Student>&);
 
 #endif 

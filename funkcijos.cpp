@@ -1,8 +1,19 @@
 #include "funk.h"
+#include "StudentClass.h"
 
-bool compare(Student& x, Student& y)
+bool compare(const Student& x, const Student& y)
 {
-    return x.vid < y.vid;
+    return x.med() < y.med();
+}
+
+bool comparePagalPavarde(const Student& x, const Student& y)
+{
+    return x.surname() < y.surname();
+}
+
+bool comparePagalEgza(const Student& x, const Student& y)
+{
+    return x.exam() < y.exam();
 }
 
 //Checks if the data file "kursiokai.txt" exists for a failsafe
@@ -39,17 +50,16 @@ int generateRandom()
 }
 
 //Function responsible for generating the data file
-void generateFile()
+void generateFile(vector<Student> &student)
 {
     std::ofstream fd("kursiokai.txt");
-
-    int mokiniai;
+    int studentTemp;
     cout << "Kiek mokiniu reikia sugeneruoti?" << endl;
-    cin >> mokiniai;
-    while(mokiniai < 0) //Waits for the user to enter a valid value for the amount students
+    cin >> studentTemp;
+    while(studentTemp < 0) //Waits for the user to enter a valid value for the amount students
     {
         cout << "Iveskite teisinga reiksme!" << endl;
-        cin >> mokiniai;
+        cin >> studentTemp;
     }
     int n;
     cin >> n;
@@ -69,7 +79,7 @@ void generateFile()
     fd << "Egzaminas" << endl;
 
     //Generates the student ID's and their grades
-    for(int i = 0; i != mokiniai; i++)
+    for(int i = 0; i != studentTemp; i++)
     {
         fd  << "Vardas" << left << setw(9) << i+1 << "Pavarde" << left << setw(13) << i+1;
         for(int k = 0; k != n; k++)
@@ -84,41 +94,20 @@ void generateFile()
     cout << "Failas sugeneruotas" << endl;
 }
 
-//Counts the average value of a student
-double vidCalc(vector<int> hw, int exam, int n)
-{
-    int temp = 0;
-    for(int i = 0; i != n; i++)
-    {
-        temp += hw[i];
-    }
-    return 0.4 * (double)(temp / n) + 0.6 * exam;
-}
-
-//Counts the median value of a student
-double medCalc(vector<int> hw, int exam, int n)
-{
-    sort(hw.begin(), hw.end());
-    if(n % 2 == 1)
-    {
-        return 0.4 * (double)hw[n / 2] + 0.6 * exam;
-    }
-    else
-    {
-        return 0.4 * (double)((hw[n / 2 - 1] + hw[n / 2]) / 2) + 0.6 * exam;
-    }
-}
-
 //Adds data from the user via console
 void addData(vector<Student> &student, int n, bool ifRandom)
 {
     student.push_back(Student());
+    string temp;
     int k = student.size() - 1;
     cout << "Iveskite mokinio varda" << endl;
-    cin >> student[k].name;
+    cin >> temp;
+    student[k].setName(temp);
     cout << "Iveskite mokinio pavarde" << endl;
-    cin >> student[k].surname;
-    string temp;
+    cin >> temp;
+    student[k].setSurname(temp);
+
+    vector<double> tempHW;
 
     //Checks if RNG is used for creating marks
     if(ifRandom == true)
@@ -128,12 +117,13 @@ void addData(vector<Student> &student, int n, bool ifRandom)
         {
             cout << "Generuojamas " << i+1 << " pazymys = ";
             temp = generateRandom();
-            student[k].hw.push_back(std::stoi(temp));
+            tempHW.push_back(std::stoi(temp));
             cout << temp << endl;
         }
         cout << "Generuojamas egzamino pazymys = ";
-        student[k].exam = generateRandom();
-        cout << student[k].exam << endl;
+        student[k].setExam(generateRandom());
+        cout << student[k].exam() << endl;
+        student[k].setHomework(tempHW);
     }
     else
     {       
@@ -155,7 +145,7 @@ void addData(vector<Student> &student, int n, bool ifRandom)
                     cin >> temp;
                 }
             }
-            student[k].hw.push_back(std::stoi(temp));
+            tempHW.push_back(std::stoi(temp));
         }
         cout << "Iveskite egzamino pazymi" << endl;
         cin >> temp;
@@ -172,15 +162,16 @@ void addData(vector<Student> &student, int n, bool ifRandom)
                 cin >> temp;
             }
         }
-        student[k].exam = std::stoi(temp);
+        student[k].setExam(std::stoi(temp));
+        student[k].setHomework(tempHW);
     }
 }
 
-//Function responsible for adding data from a file into the memory (struct)
+//Function responsible for adding data from a file into the memory (struct) 
 void addDataFromFile(vector<Student> &student, vector<Student> &good, vector<Student> &bad, int &n)
 {
     std::ifstream fd("kursiokai.txt");
-    
+
     //Checks if the data file exists, if not, throws an exeption
     if(!fd)
     {
@@ -189,67 +180,51 @@ void addDataFromFile(vector<Student> &student, vector<Student> &good, vector<Stu
     
     //Takes the first line of the file to count how many marks are there based on the amount of characters the marks take up
     string temp;
-    std::getline(fd, temp);
+    std::getline(fd, temp); //TODO MAKE A UNIVERSAL NAME AND SURNAME SIZE
     n = (temp.size() - 44) / 5;
 
     int k = 0;
-    int g = 0; 
-    int b = 0;
-    string tempMark;
+
+    vector<double> tempHW;
     //Runs a loop until it checks if it reached the end of the file
     while(fd.peek() != EOF)
     {
         student.push_back(Student());
-        good.push_back(Student());
-        bad.push_back(Student());
         good.reserve(student.capacity());
         bad.reserve(student.capacity());
-        fd >> student[k].name >> student[k].surname;
+        fd >> temp;
+        student[k].setName(temp);
+        fd >> temp;
+        student[k].setSurname(temp);
         for(int i = 0; i != n; i++)
         {
-            fd >> tempMark;
-            if(checkIfInt(tempMark) != 1)
+            fd >> temp;
+            if(checkIfInt(temp) != 1)
             {
                 throw "Bloga ivestis duomenu faile (ivesta neteisinga reiksme pazymiu lenteleje)";
             }
-            student[k].hw.push_back(std::stoi(tempMark));
+            tempHW.push_back(std::stoi(temp));
         }
-        fd >> tempMark;
-        if(checkIfInt(tempMark) != 1)
+        fd >> temp;
+        if(checkIfInt(temp) != 1)
         {
             throw "Bloga ivestis duomenu faile (ivesta neteisinga reiksme egzaminu dalyje)";
         }
-        student[k].exam = std::stoi(tempMark);
-        student[k].vid = vidCalc(student[k].hw, student[k].exam, n);
-        student[k].med = medCalc(student[k].hw, student[k].exam, n);
-        if(student[k].vid < 5)
+        student[k].setExam(std::stoi(temp));
+        student[k].setHomework(tempHW);
+        student[k].setVid(student[k].avgCalc());
+        student[k].setMed(student[k].medCalc());
+        if(student[k].vid() < 5)
         {
-            bad[b].name = student[k].name;
-            bad[b].surname = student[k].surname;
-            for(int i = 0; i != n; i++)
-            {
-                tempMark = student[k].hw[i];
-                bad[b].hw.push_back(std::stoi(tempMark));
-            }
-            bad[b].vid = student[k].vid;
-            bad[b].med = student[k].med;
-            b++;
+            bad.push_back(student[k]);
         }
         else
         {
-            good[g].name = student[k].name;
-            good[g].surname = student[k].surname;
-            for(int i = 0; i != n; i++)
-            {
-                tempMark = student[k].hw[i];
-                good[g].hw.push_back(std::stoi(tempMark));
-            }
-            good[g].vid = student[k].vid;
-            good[g].med = student[k].med;
-            g++;
+            good.push_back(student[k]);
         }
         //The variable k is used to put the students info on the next group inside the struct vector
         k++;
+        tempHW.clear();
     }
     good.shrink_to_fit();
     bad.shrink_to_fit();
@@ -276,9 +251,9 @@ void print(vector<Student> &student, vector<Student> &good, vector<Student> &bad
 
         for(int i = 0; i != k; i++)
         {
-            cout << left << setw(15) << student[i].name << left << setw(20) << student[i].surname;
-            cout << left << setw(19) << fixed << setprecision(2) << student[i].vid;
-            cout << left << setw(16) << fixed << setprecision(2) << student[i].med << endl;
+            cout << left << setw(15) << student[i].name() << left << setw(20) << student[i].surname();
+            cout << left << setw(19) << fixed << setprecision(2) << student[i].vid();
+            cout << left << setw(16) << fixed << setprecision(2) << student[i].med() << endl;
         }
     }  
     else
@@ -303,19 +278,19 @@ void print(vector<Student> &student, vector<Student> &good, vector<Student> &bad
         
         resultGood << endl;
         resultBad << endl;
-        
+
         for(int i = 0; i != g; i++)
         {
             
-            resultGood << left << setw(15) << good[i].name << left << setw(20) << good[i].surname;
-            resultGood << left << setw(19) << fixed << setprecision(2) << good[i].vid;
-            resultGood << left << setw(16) << fixed << setprecision(2) << good[i].med << endl;
+            resultGood << left << setw(15) << good[i].name() << left << setw(20) << good[i].surname();
+            resultGood << left << setw(19) << fixed << setprecision(2) << good[i].vid();
+            resultGood << left << setw(16) << fixed << setprecision(2) << good[i].med() << endl;
         }    
         for(int i = 0; i != b; i++)
         {
-            resultBad << left << setw(15) << bad[i].name << left << setw(20) << bad[i].surname;
-            resultBad << left << setw(19) << fixed << setprecision(2) << bad[i].vid;
-            resultBad << left << setw(16) << fixed << setprecision(2) << bad[i].med << endl;
+            resultBad << left << setw(15) << bad[i].name() << left << setw(20) << bad[i].surname();
+            resultBad << left << setw(19) << fixed << setprecision(2) << bad[i].vid();
+            resultBad << left << setw(16) << fixed << setprecision(2) << bad[i].med() << endl;
         }
     }
     

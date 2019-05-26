@@ -40,7 +40,7 @@ int main()
             }
             if(temp == 1)
             {
-                generateFile();
+                generateFile(student);
             }
             else
             {
@@ -80,8 +80,8 @@ int main()
         while(cycle != 0)
         {
             addData(student, n, ifRandom);
-            student[whichCycle].vid = vidCalc(student[whichCycle].hw, student[whichCycle].exam, n);
-            student[whichCycle].med = medCalc(student[whichCycle].hw, student[whichCycle].exam, n);
+            student[whichCycle].setVid(student[whichCycle].avgCalc()); 
+            student[whichCycle].setMed(student[whichCycle].medCalc()); 
             cout << "Jeigu norite susdabdyti vedima, iveskite 0" << endl;
             cout << "Jeigu norite vesti daugiau duomenu, iveskite 1" << endl;
             cin >> cycle;
