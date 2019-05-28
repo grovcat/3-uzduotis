@@ -37,6 +37,8 @@
 .vscode/ipch/b9c21847fcffe1f6/FUNKCIJOS.ipch
 *.bin
 3 uzduotis.code-workspace
-*.txt
 *.ipch
 .vscode/settings.json
+kursiokai.txt
+rezultatai-bad.txt
+rezultatai-good.txt
