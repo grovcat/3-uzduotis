@@ -46,3 +46,10 @@ double Student::medCalc()
         }
     }
 }
+
+Student::~Student()
+{
+    hw_.clear();
+    name_.clear();
+    surname_.clear();
+}

@@ -2,7 +2,8 @@
 
 #include "funk.h"
 
-class Student {
+class Student
+{
 
 private:
     
@@ -41,11 +42,12 @@ public:
     //operatoriai
     inline friend bool operator==(const Student& a, const Student& b) { return a.name_ == b.name_ && a.surname_ == b.surname_ && a.vid_ == b.vid_ && a.med_ == b.med_ && a.hw_ == b.hw_; }
 	inline friend bool operator!=(const Student& a, const Student& b) { return !(a == b); }
-	inline friend bool operator>(const Student& a, const Student& b) { return a.final_mark_ > b.final_mark_; }
-	inline friend bool operator<(const Student& a, const Student& b) { return a.final_mark_ < b.final_mark_; }
-	inline friend bool operator>=(const Student& a, const Student& b) { return a.final_mark_ >= b.final_mark_; }
-	inline friend bool operator<=(const Student& a, const Student& b) { return a.final_mark_ <= b.final_mark_; }
+	inline friend bool operator>(const Student& a, const Student& b) { return a.vid_ > b.vid_; }
+	inline friend bool operator<(const Student& a, const Student& b) { return a.vid_ < b.vid_;}
+	inline friend bool operator>=(const Student& a, const Student& b) { return a.vid_ >= b.vid_; }
+	inline friend bool operator<=(const Student& a, const Student& b) { return a.vid_ <= b.vid_; }
 
-
+    //destructoriai
+    ~Student();
 
 };
