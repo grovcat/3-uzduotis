@@ -1,8 +1,9 @@
 #pragma once
 
 #include "funk.h"
+#include "HumanClass.h"
 
-class Student
+class Student : protected Human
 {
 
 private:
@@ -16,8 +17,9 @@ private:
 
 public:
     //constructors
-    Student() : exam_(0), vid_(0), med_(0) {}
-    Student(std::string name, std::string surname) : name_(name), surname_(surname), exam_(0), vid_(0), med_(0) {}
+    Student() : Human{}, exam_(0), vid_(0), med_(0) {}
+    Student(string name) : Human{name}, exam_(0), vid_(0), med_(0) {}
+    Student(std::string name, std::string surname) : Human{name, surname}, exam_(0), vid_(0), med_(0) {}
     
     //get'ers
     inline std::string name() const { return name_; }    // get'eriai, inline
